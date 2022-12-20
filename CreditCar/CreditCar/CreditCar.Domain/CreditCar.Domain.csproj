@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CreditCar.Entity\CreditCar.Entity.csproj" />
+    <ProjectReference Include="..\CreditCar.Repository\CreditCar.Repository.csproj" />
   </ItemGroup>
 
 </Project>

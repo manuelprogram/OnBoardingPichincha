@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CreditCar.Repository.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 
 namespace CreditCar.Repository.Context
 {
-    public partial class creditcarContext : DbContext
+    public partial class CreditcarContext : DbContext, ISqlDataContext
     {
-        public creditcarContext()
-        {
-        }
+        private readonly IConfiguration configuration;
 
-        public creditcarContext(DbContextOptions<creditcarContext> options)
+        public CreditcarContext(IConfiguration configuration,
+            DbContextOptions<CreditcarContext> options)
             : base(options)
         {
+            this.configuration = configuration;
         }
 
         public virtual DbSet<AsignarCliente> AsignarClientes { get; set; } = null!;
@@ -25,12 +24,21 @@ namespace CreditCar.Repository.Context
         public virtual DbSet<SolicitudCredito> SolicitudCreditos { get; set; } = null!;
         public virtual DbSet<Vehiculo> Vehiculos { get; set; } = null!;
 
+        public DbSet<TEntity> Query<TEntity>() where TEntity : class
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<int> SaveAsync(CancellationToken cancellationToken = default)
+        {
+            return await SaveChangesAsync(cancellationToken);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=creditcar;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"]);
             }
         }
 
